@@ -1,43 +1,33 @@
 <div align="center">
-<img src="./.assets/logo.svg" width="300" height="300" alt="banner">
-<h1>DogDay Buildbot</h1>
 
----
+# Kernel-Builder
+Build Android Kernel Using GitHub Actions.
 
-English | [中文文档](./README.zh_CN.md)
-
-![License](https://img.shields.io/static/v1?label=License&message=BY-NC-SA&logo=creativecommons&color=green)
-![Language](https://img.shields.io/github/languages/top/DogDayAndroid/Android-Builder)
-![Issues](https://img.shields.io/github/issues/DogDayAndroid/Android-Builder)
-![Pull Requests](https://img.shields.io/github/issues-pr/DogDayAndroid/Android-Builder)
-<br>
-
----
+[![Build kernels](https://github.com/Norikimika/Kernel-Builder/actions/workflows/build.yml/badge.svg)](https://github.com/Norikimika/Kernel-Builder/actions/workflows/build.yml)
 
 </div>
 
-## Preface
+## Introduction
+Use GitHub Actions to Build Android System Kernel Support KernelSU Next and SUSFS Builds.
 
-Unfortunately, I accidentally deleted the original repository on the night of **2023/11/13**, so you may not be able to find it now if you `fork` or `star` it before.
+## KernelSU Next
+The build patch from [KernelSU Next](https://github.com/rifsxd/KernelSU-Next/releases/latest) will be used to continue supporting non-GKI kernel. The manager must be downloaded from the provided link.
 
-After learning from the experience, I decided to make the project more perfect and support more content. Currently, the content that this project will support is as follows:
+## Flashing Instructions
+1. Download the [Kernel](https://github.com/Norikimika/Kernel-Builder/releases/latest).
+2. Enter recovery mode (Press Power + Volume Up while the device is off).
+3. Backup the `boot`, `dtbo`, `vendor_boot` partition.
+4. Flash it (do not use ADB sideload mode).
 
-- You can enter the **[<kbd> <br/>  Kernel  <br/> </kbd>](./Kernel/)** directory in this repository to configure and build the kernel.
-- Clone this repository and enter **[<kbd> <br/>  System  <br/> </kbd>](./System/)** to develop and compile the system.
-- Entering the **[<kbd> <br/>  TWRP  <br/> </kbd>](./TWRP/)** folder of this project can help you quickly build TWRP.
+## Currently Built Kernel
 
-The specific content of each project will be displayed separately under each folder. You can enter these folders to view their individual readme files to learn how to use them.
+### Redmi K40S / POCO F4 (munch)
+- **[AOSPA Uvite](https://github.com/AOSPA/android_kernel_xiaomi_sm8250)**
+- **[N0Kernel](https://github.com/EmanuelCN/kernel_xiaomi_sm8250)**
 
-## Contributor
+A total of 2 kernel are available, mainly for AOSP-based ROMs.
 
-[![Contributor](https://contrib.rocks/image?repo=DogDayAndroid/Android-Builder)](https://github.com/DogDayAndroid/Android-Builder/graphs/contributors)
-
-## Star history
-
-[![Star History](https://starchart.cc/DogDayAndroid/Android-Builder.svg)](https://starchart.cc/DogDayAndroid/Android-Builder)
-
-## License
-
-[![by-nc-sa](https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png)](http://creativecommons.org/licenses/by-nc-sa/4.0/)
-
-This work is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-nc-sa/4.0/).
+## Build Schedule
+- Some updates have been made to the repository and tested.
+- A new stable KernelSU Next release has been published.
+- The kernel source has been updated, possibly including new features, bug fixes, or security patches.

@@ -1,0 +1,52 @@
+[
+    {
+        "kernelSource": {
+            "name": "Uvite-Munch-KSUN",
+            "repo": "https://github.com/AOSPA/android_kernel_xiaomi_sm8250",
+            "branch": "uvite",
+            "defconfig": "vendor/munch_defconfig"
+        },
+        "toolchains": [
+            {
+                "name": "clang",
+                "bash": "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman",
+                "binaryEnv": ["./bin"]
+            }
+        ],
+        "enableCcache": true,
+        "params": {
+            "ARCH": "arm64",
+            "CC": "clang",
+            "externalCommands": {
+                "CROSS_COMPILE": "aarch64-linux-gnu-",
+                "LLVM": "1",
+                "LLVM_IAS": "1"
+            }
+        },
+        "AnyKernel3": {
+            "release": false,
+            "custom": {
+                "repo": "https://github.com/Norikimika/AnyKernel3",
+                "branch": "munch",
+                "strname": "Uvite Kernel"
+            }
+        },
+        "KernelSU": {
+            "enable": true,
+            "repo": "https://github.com/rifsxd/KernelSU-Next",
+            "branch": "next-susfs-dev",
+            "lkm": false,
+            "patch": true
+        },
+        "KernelSUSFS": {
+            "enable": true,
+            "branch": "kernel-4.19"
+        },
+        "enableLXC": false,
+        "Extra": {
+            "enable": true,
+            "dtboMIUI": false,
+            "uv": true
+        }
+    }
+]

@@ -1,0 +1,12 @@
+--- /fs/proc/task_mmu.c	2025-03-24 04:15:43.074334510 +0800
++++ /fs/proc/task_mmu.c	2025-03-24 04:28:26.804410594 +0800
+@@ -21,6 +21,9 @@
+ #include <linux/pkeys.h>
+ #include <linux/mm_inline.h>
+ #include <linux/ctype.h>
++#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
++#include <linux/susfs_def.h>
++#endif
+ 
+ #include <asm/elf.h>
+ #include <asm/tlb.h>
