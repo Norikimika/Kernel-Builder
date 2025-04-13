@@ -235,6 +235,11 @@ jobs:
 
           echo "🤔 $args"
 
+      # Make script executable
+      - name: 🔧 Setup permissions
+        run: |
+          chmod +x $GITHUB_WORKSPACE/script/config.sh
+
       - name: 😋 Setup KernelSU
         working-directory: ${{ env.KERNEL_NAME }}
         env:
@@ -251,32 +256,20 @@ jobs:
           # Apply new KernelSU patches
           curl -LSs "${{ env.KSU_REPO }}/raw/${{ env.KSU_BRANCH }}/kernel/setup.sh" | bash -s ${{ env.KSU_BRANCH }}
 
-          DEFCONFIG() {
-             CONFIG_PATH="${{ env.DEFCONFIG }}"
-             input="$1"
-             key="${input%%=*}" 
-             value="${input#*=}"
-             if grep -q "^$key=" "$CONFIG_PATH"; then
-                 sed -i "s/^$key=.*/$key=$value/" "$CONFIG_PATH"
-             else
-                 echo "$key=$value" >> "$CONFIG_PATH"
-             fi
-          }
-
           if [ "${{ env.KSU_LKM }}" == "true" ]; then
             echo -e "# KernelSU" >> ${{ env.DEFCONFIG }}
-            DEFCONFIG CONFIG_KSU=y
-            DEFCONFIG CONFIG_KPROBES=y
-            DEFCONFIG CONFIG_HAVE_KPROBES=y
-            DEFCONFIG CONFIG_KPROBE_EVENTS=y
-            DEFCONFIG CONFIG_KSU_WITH_KPROBES=y
+            $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU=y
+            $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBES=y
+            $GITHUB_WORKSPACE/script/config.sh CONFIG_HAVE_KPROBES=y
+            $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBE_EVENTS=y
+            $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_WITH_KPROBES=y
           else
             echo -e "# KernelSU" >> ${{ env.DEFCONFIG }}
-            DEFCONFIG CONFIG_KSU=y
-            DEFCONFIG CONFIG_KPROBES=n
-            DEFCONFIG CONFIG_HAVE_KPROBES=n
-            DEFCONFIG CONFIG_KPROBE_EVENTS=n
-            DEFCONFIG CONFIG_KSU_WITH_KPROBES=n
+            $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU=y
+            $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBES=n
+            $GITHUB_WORKSPACE/script/config.sh CONFIG_HAVE_KPROBES=n
+            $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBE_EVENTS=n
+            $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_WITH_KPROBES=n
           fi
 
           if [ "${{ env.KSUPATCH }}" == "true" ]; then
@@ -306,36 +299,24 @@ jobs:
           # Apply Hide Stuff patches
           patch -p1 -F 3 < $GITHUB_WORKSPACE/patch/69_hide_stuff.patch || true
 
-          DEFCONFIG() {
-             CONFIG_PATH="${{ env.DEFCONFIG }}"
-             input="$1"
-             key="${input%%=*}" 
-             value="${input#*=}"
-             if grep -q "^$key=" "$CONFIG_PATH"; then
-                 sed -i "s/^$key=.*/$key=$value/" "$CONFIG_PATH"
-             else
-                 echo "$key=$value" >> "$CONFIG_PATH"
-             fi
-          }
-
           # Add SUSFS configuration settings
           echo "# KernelSU - SUSFS" >> ${{ env.DEFCONFIG }}
-          DEFCONFIG CONFIG_KSU_SUSFS=y
-          DEFCONFIG CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y
-          DEFCONFIG CONFIG_KSU_SUSFS_SUS_PATH=y
-          DEFCONFIG CONFIG_KSU_SUSFS_SUS_MOUNT=y
-          DEFCONFIG CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y
-          DEFCONFIG CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y
-          DEFCONFIG CONFIG_KSU_SUSFS_SUS_KSTAT=y
-          DEFCONFIG CONFIG_KSU_SUSFS_SUS_OVERLAYFS=y
-          DEFCONFIG CONFIG_KSU_SUSFS_TRY_UMOUNT=y
-          DEFCONFIG CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y
-          DEFCONFIG CONFIG_KSU_SUSFS_SPOOF_UNAME=y
-          DEFCONFIG CONFIG_KSU_SUSFS_ENABLE_LOG=y
-          DEFCONFIG CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
-          DEFCONFIG CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
-          DEFCONFIG CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
-          DEFCONFIG CONFIG_KSU_SUSFS_SUS_SU=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SUS_PATH=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SUS_MOUNT=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SUS_KSTAT=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SUS_OVERLAYFS=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_TRY_UMOUNT=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SPOOF_UNAME=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_ENABLE_LOG=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SUS_SU=y
 
       - name: 😁 Setup LXC docker
         working-directory: ${{ env.KERNEL_NAME }}
@@ -389,26 +370,18 @@ jobs:
         if: ${{ env.ENABLE_EXTRA == 'true' }}
         run: |
           # Add additional config setting
-          DEFCONFIG() {
-             CONFIG_PATH="${{ env.DEFCONFIG }}"
-             input="$1"
-             key="${input%%=*}" 
-             value="${input#*=}"
-             if grep -q "^$key=" "$CONFIG_PATH"; then
-                 sed -i "s/^$key=.*/$key=$value/" "$CONFIG_PATH"
-             else
-                 echo "$key=$value" >> "$CONFIG_PATH"
-             fi
-          }
-
           echo "# Extra" >> ${{ env.DEFCONFIG }}
-          DEFCONFIG CONFIG_SDCARD_FS=y
-          DEFCONFIG CONFIG_BUILD_ARM64_KERNEL_COMPRESSION_GZIP=y
-          DEFCONFIG CONFIG_TMPFS_XATTR=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_SDCARD_FS=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_BUILD_ARM64_KERNEL_COMPRESSION_GZIP=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_TMPFS_XATTR=y
+          $GITHUB_WORKSPACE/script/config.sh CONFIG_GKI_HIDDEN_GPU_CONFIGS=y
 
           if [ "${{ env.MIUI_DTBO }}" == "true" ]; then
             sed -i 's/qcom,mdss-pan-physical-width-dimension = <70>;$/qcom,mdss-pan-physical-width-dimension = <695>;/' ${{ env.DTSI }}/dsi-panel-l11r-38-08-0a-dsc-cmd.dtsi
             sed -i 's/qcom,mdss-pan-physical-height-dimension = <155>;$/qcom,mdss-pan-physical-height-dimension = <1546>;/' ${{ env.DTSI }}/dsi-panel-l11r-38-08-0a-dsc-cmd.dtsi
+          else
+            sed -i 's/qcom,mdss-pan-physical-width-dimension = <695>;$/qcom,mdss-pan-physical-width-dimension = <70>;/' ${{ env.DTSI }}/dsi-panel-l11r-38-08-0a-dsc-cmd.dtsi
+            sed -i 's/qcom,mdss-pan-physical-height-dimension = <1546>;$/qcom,mdss-pan-physical-height-dimension = <155>;/' ${{ env.DTSI }}/dsi-panel-l11r-38-08-0a-dsc-cmd.dtsi
           fi
 
           if [ "${{ env.UV }}" == "true" ]; then
@@ -439,6 +412,9 @@ jobs:
           ARCH: ${{ steps.generate-args.outputs.ARCH }}
           ANYKERNEL3_FILE: "${{ env.WORKSPACE }}/${{ env.KERNEL_NAME }}-${{ env.BUILD_DATE }}"
         run: |
+          if [ -d "AnyKernel3" ]; then
+            rm -rf AnyKernel3
+          fi
           if echo -n '${{ env.PARAMS }}' | jq -e 'has("custom")' > /dev/null; then
             CUSTOM_ANYKERNEL3=$(echo -n '${{ env.PARAMS }}' | jq -r ".custom")
             ANYKERNEL_REPO=$(echo $CUSTOM_ANYKERNEL3 | jq -r ".repo")
