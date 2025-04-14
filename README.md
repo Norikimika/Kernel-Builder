@@ -15,9 +15,15 @@ The build patch from [KernelSU Next](https://github.com/rifsxd/KernelSU-Next/rel
 
 ## Flashing Instructions
 1. Download the [Kernel](https://github.com/Norikimika/Kernel-Builder/releases/latest).
-2. Enter recovery mode (Press Power + Volume Up while the device is off).
-3. Backup the `boot`, `dtbo`, `vendor_boot` partition.
-4. Flash it (do not use ADB sideload mode).
+2. Enter **Recovery Mode** by holding **Power + Volume Up** while the device is off.
+3. **Backup** the following partitions:
+   - `boot`
+   - `dtbo`
+   - `vendor_boot`
+4. **Flash the kernel** via recovery:
+   - If using a custom recovery (like TWRP or OrangeFox), tap **Install** and select the kernel zip.
+   - **Do not use ADB sideload mode**.
+5. Alternatively, you can use a kernel flasher app like [HKF](https://github.com/libxzr/HorizonKernelFlasher/releases/latest) or [FKM](https://play.google.com/store/apps/details?id=com.franco.kernel) to flash the kernel.
 
 ## Currently Built Kernel
 
