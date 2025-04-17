@@ -235,11 +235,6 @@ jobs:
 
           echo "🤔 $args"
 
-      # Make script executable
-      - name: 🔧 Setup permissions
-        run: |
-          chmod +x $GITHUB_WORKSPACE/script/config.sh
-
       - name: 😋 Setup KernelSU
         working-directory: ${{ env.KERNEL_NAME }}
         env:
@@ -258,18 +253,18 @@ jobs:
 
           if [ "${{ env.KSU_LKM }}" == "true" ]; then
             echo -e "# KernelSU" >> ${{ env.DEFCONFIG }}
-            $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU=y
-            $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBES=y
-            $GITHUB_WORKSPACE/script/config.sh CONFIG_HAVE_KPROBES=y
-            $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBE_EVENTS=y
-            $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_WITH_KPROBES=y
+            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU=y
+            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBES=y
+            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_HAVE_KPROBES=y
+            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBE_EVENTS=y
+            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_WITH_KPROBES=y
           else
             echo -e "# KernelSU" >> ${{ env.DEFCONFIG }}
-            $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU=y
-            $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBES=n
-            $GITHUB_WORKSPACE/script/config.sh CONFIG_HAVE_KPROBES=n
-            $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBE_EVENTS=n
-            $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_WITH_KPROBES=n
+            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU=y
+            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBES=n
+            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_HAVE_KPROBES=n
+            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBE_EVENTS=n
+            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_WITH_KPROBES=n
           fi
 
           if [ "${{ env.KSUPATCH }}" == "true" ]; then
@@ -301,22 +296,22 @@ jobs:
 
           # Add SUSFS configuration settings
           echo "# KernelSU - SUSFS" >> ${{ env.DEFCONFIG }}
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SUS_PATH=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SUS_MOUNT=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SUS_KSTAT=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SUS_OVERLAYFS=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_TRY_UMOUNT=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SPOOF_UNAME=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_ENABLE_LOG=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SUS_SU=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SUS_PATH=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SUS_MOUNT=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SUS_KSTAT=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SUS_OVERLAYFS=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_TRY_UMOUNT=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SPOOF_UNAME=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_ENABLE_LOG=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_SUSFS_SUS_SU=y
 
       - name: 😁 Setup LXC docker
         working-directory: ${{ env.KERNEL_NAME }}
@@ -371,10 +366,10 @@ jobs:
         run: |
           # Add additional config setting
           echo "# Extra" >> ${{ env.DEFCONFIG }}
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_SDCARD_FS=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_BUILD_ARM64_KERNEL_COMPRESSION_GZIP=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_TMPFS_XATTR=y
-          $GITHUB_WORKSPACE/script/config.sh CONFIG_GKI_HIDDEN_GPU_CONFIGS=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_SDCARD_FS=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_BUILD_ARM64_KERNEL_COMPRESSION_GZIP=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_TMPFS_XATTR=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_GKI_HIDDEN_GPU_CONFIGS=y
 
           if [ "${{ env.MIUI_DTBO }}" == "true" ]; then
             sed -i 's/qcom,mdss-pan-physical-width-dimension = <70>;$/qcom,mdss-pan-physical-width-dimension = <695>;/' ${{ env.DTSI }}/dsi-panel-l11r-38-08-0a-dsc-cmd.dtsi
