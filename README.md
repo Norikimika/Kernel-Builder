@@ -30,8 +30,9 @@ The build patch from [KernelSU Next](https://github.com/rifsxd/KernelSU-Next/rel
 ### Redmi K40S / POCO F4 (munch)
 - **[AOSPA Uvite](https://github.com/AOSPA/android_kernel_xiaomi_sm8250)**
 - **[N0Kernel](https://github.com/EmanuelCN/kernel_xiaomi_sm8250)**
+- **[RealKing](https://github.com/Rohail33/Realking_kernel_sm8250)**
 
-A total of 2 kernel are available, mainly for AOSP-based ROMs.
+A total of 3 kernel are available, mainly for AOSP-based ROMs.
 
 ## Build Schedule
 - Some updates have been made to the repository and tested.
