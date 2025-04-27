@@ -183,6 +183,14 @@ jobs:
               bash <(curl -s "$toolchain_bash") -S
 
               echo "🤔 Download $toolchain_name => ($toolchain_bash)"
+            elif echo $toolchain | jq -e 'has("text")' > /dev/null; then
+              # if text
+              toolchain_text=$(echo $toolchain | jq -r ".text")
+              mkdir -p $toolchain_name
+              wget "$(curl -s $toolchain_text)" -O "$toolchain_name.tar.gz"
+              tar zxvf $toolchain_name.tar.gz -C $toolchain_name && rm -rf $toolchain_name.gz
+
+              echo "🤔 Download $toolchain_name => ($toolchain_text)"
             else
               # If from git
               toolchain_repo=$(echo $toolchain | jq -r ".repo")
@@ -289,8 +297,10 @@ jobs:
 
           # Fix SUSFS patch
           bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/n0k/sched.h.patch
+          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/rk/sched.h.patch
           bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/uvite/task_mmu.c.patch
           bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/n0k/task_mmu.c.patch
+          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/rk/task_mmu.c.patch
 
           # Apply Hide Stuff patches
           patch -p1 -F 3 < $GITHUB_WORKSPACE/patch/69_hide_stuff.patch || true

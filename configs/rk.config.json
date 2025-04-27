@@ -1,0 +1,104 @@
+[
+    {
+        "kernelSource": {
+            "name": "RealKing-Munch-AOSP-KSUN",
+            "repo": "https://github.com/Rohail33/Realking_kernel_sm8250",
+            "branch": "m-staging",
+            "defconfig": "munch_defconfig"
+        },
+        "toolchains": [
+            {
+                "name": "clang",
+                "text": "https://raw.githubusercontent.com/XSans0/WeebX-Clang/main/release/19.x/link.txt",
+                "binaryEnv": ["./bin"]
+            }
+        ],
+        "enableCcache": true,
+        "params": {
+            "ARCH": "arm64",
+            "CC": "clang",
+            "externalCommands": {
+                "CROSS_COMPILE": "aarch64-linux-gnu-",
+                "NM": "llvm-nm",
+                "OBJDUMP": "llvm-objdump",
+                "STRIP": "llvm-strip"
+            }
+        },
+        "AnyKernel3": {
+            "release": false,
+            "custom": {
+                "repo": "https://github.com/Norikimika/AnyKernel3",
+                "branch": "munch",
+                "strname": "Real King by Rohail"
+            }
+        },
+        "KernelSU": {
+            "enable": true,
+            "repo": "https://github.com/rifsxd/KernelSU-Next",
+            "branch": "next-susfs-dev",
+            "lkm": false,
+            "patch": false
+        },
+        "KernelSUSFS": {
+            "enable": true,
+            "branch": "kernel-4.19"
+        },
+        "enableLXC": false,
+        "Extra": {
+            "enable": true,
+            "dtboMIUI": false,
+            "uv": false
+        }
+    },
+    {
+        "kernelSource": {
+            "name": "RealKing-Munch-MIUI-KSUN",
+            "repo": "https://github.com/Rohail33/Realking_kernel_sm8250",
+            "branch": "m-staging",
+            "defconfig": "munch_defconfig"
+        },
+        "toolchains": [
+            {
+                "name": "clang",
+                "text": "https://raw.githubusercontent.com/XSans0/WeebX-Clang/main/release/19.x/link.txt",
+                "binaryEnv": ["./bin"]
+            }
+        ],
+        "enableCcache": true,
+        "params": {
+            "ARCH": "arm64",
+            "CC": "clang",
+            "externalCommands": {
+                "CROSS_COMPILE": "aarch64-linux-gnu-",
+                "NM": "llvm-nm",
+                "OBJDUMP": "llvm-objdump",
+                "STRIP": "llvm-strip"
+            }
+        },
+        "AnyKernel3": {
+            "release": false,
+            "custom": {
+                "repo": "https://github.com/Norikimika/AnyKernel3",
+                "branch": "munch",
+                "strname": "Real King by Rohail"
+            }
+        },
+        "KernelSU": {
+            "enable": true,
+            "repo": "https://github.com/rifsxd/KernelSU-Next",
+            "branch": "next-susfs-dev",
+            "lkm": false,
+            "patch": false
+        },
+        "KernelSUSFS": {
+            "enable": true,
+            "branch": "kernel-4.19"
+        },
+        "enableLXC": false,
+        "Extra": {
+            "enable": true,
+            "dtboMIUI": true,
+            "uv": false
+        }
+    }
+]
