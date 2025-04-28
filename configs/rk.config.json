@@ -1,7 +1,7 @@
 [
     {
         "kernelSource": {
-            "name": "RealKing-Munch-AOSP-KSUN",
+            "name": "RealKing-Munch-AOSP-KSU",
             "repo": "https://github.com/Rohail33/Realking_kernel_sm8250",
             "branch": "m-staging",
             "defconfig": "munch_defconfig"
@@ -36,7 +36,6 @@
             "enable": true,
             "repo": "https://github.com/rifsxd/KernelSU-Next",
             "branch": "next-susfs-dev",
-            "lkm": false,
             "patch": false
         },
         "KernelSUSFS": {
@@ -52,7 +51,7 @@
     },
     {
         "kernelSource": {
-            "name": "RealKing-Munch-MIUI-KSUN",
+            "name": "RealKing-Munch-MIUI-KSU",
             "repo": "https://github.com/Rohail33/Realking_kernel_sm8250",
             "branch": "m-staging",
             "defconfig": "munch_defconfig"
@@ -87,7 +86,6 @@
             "enable": true,
             "repo": "https://github.com/rifsxd/KernelSU-Next",
             "branch": "next-susfs-dev",
-            "lkm": false,
             "patch": false
         },
         "KernelSUSFS": {

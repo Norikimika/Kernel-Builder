@@ -1,7 +1,7 @@
 [
     {
         "kernelSource": {
-            "name": "Uvite-Munch-KSUN",
+            "name": "Uvite-Munch-KSU",
             "repo": "https://github.com/AOSPA/android_kernel_xiaomi_sm8250",
             "branch": "uvite",
             "defconfig": "vendor/munch_defconfig"
@@ -35,7 +35,6 @@
             "enable": true,
             "repo": "https://github.com/rifsxd/KernelSU-Next",
             "branch": "next-susfs-dev",
-            "lkm": false,
             "patch": true
         },
         "KernelSUSFS": {

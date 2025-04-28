@@ -247,7 +247,6 @@ jobs:
         working-directory: ${{ env.KERNEL_NAME }}
         env:
           KSU_BRANCH: ${{ matrix.CONFIG.KernelSU.branch }}
-          KSU_LKM: ${{ matrix.CONFIG.KernelSU.lkm }}
           DEFCONFIG: arch/${{ steps.generate-args.outputs.ARCH }}/configs/${{ env.KERNEL_DEFCONFIG_PATH }}
           KSUPATCH: ${{ matrix.CONFIG.KernelSU.patch }}
         if: ${{ env.ENABLE_KERNELSU == 'true' }}
@@ -259,21 +258,12 @@ jobs:
           # Apply new KernelSU patches
           curl -LSs "${{ env.KSU_REPO }}/raw/${{ env.KSU_BRANCH }}/kernel/setup.sh" | bash -s ${{ env.KSU_BRANCH }}
 
-          if [ "${{ env.KSU_LKM }}" == "true" ]; then
-            echo -e "# KernelSU" >> ${{ env.DEFCONFIG }}
-            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU=y
-            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBES=y
-            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_HAVE_KPROBES=y
-            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBE_EVENTS=y
-            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_WITH_KPROBES=y
-          else
-            echo -e "# KernelSU" >> ${{ env.DEFCONFIG }}
-            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU=y
-            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBES=n
-            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_HAVE_KPROBES=n
-            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KPROBE_EVENTS=n
-            bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_WITH_KPROBES=n
-          fi
+          echo -e "# KernelSU" >> ${{ env.DEFCONFIG }}
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_HAVE_KPROBES=y
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_WITH_KPROBES=y
+          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/apk_sign.c.patch
+          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/Makefile.patch
 
           if [ "${{ env.KSUPATCH }}" == "true" ]; then
             grep -qs "may_mandlock(void)" fs/namespace.c || sed -i '110s|}}||' "$GITHUB_WORKSPACE/patch/ksu_patch.sh"; bash "$GITHUB_WORKSPACE/patch/ksu_patch.sh"
@@ -479,7 +469,7 @@ jobs:
           ANYKERNEL3_FILE: "${{ env.WORKSPACE }}/${{ env.KERNEL_NAME }}-${{ env.BUILD_DATE }}.zip"
           COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          KSU_URL: ${{ env.KSU_REPO }}/releases/latest
+          KSU_URL: ${{ secrets.MANAGER_URL }}
         run: |
           python3 $GITHUB_WORKSPACE/script/errorbot.py > /dev/null
 

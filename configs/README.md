@@ -33,6 +33,11 @@ Each kernel compilation configuration file is a `Json` file ending with `.config
         "name": "",
         "bash": "",
         "binaryEnv": []
+      },
+      {
+        "name": "",
+        "text": "",
+        "binaryEnv": []
       }
     ],
     "enableCcache": true,
@@ -58,7 +63,6 @@ Each kernel compilation configuration file is a `Json` file ending with `.config
       "enable": true,
       "repo": "",
       "branch": "",
-      "lkm": false,
       "patch": true
     },
     "KernelSUSFS": {
@@ -330,14 +334,12 @@ The KernelSU object controls whether the KernelSU patch is applied. It includes 
   "enable": true,
   "repo": "https://github.com/tiann/KernelSU",
   "branch": "main",
-  "lkm": false,
   "patch": true
 }
 ```
 
 `"enable"` Indicates whether KernelSU is enabled or disabled. If set to `true`, the KernelSU patch is applied, and if set to `false`, it is not.
 `"repo"` and `"branch"` Specify a custom repository and branch if a modified version of KernelSU is used.
-`"lkm"` Determines whether KernelSU should be loaded as a Loadable Kernel Module (LKM).
 `"patch"` Indicates whether the kernel should be patched for KernelSU functionality.
 
 ### KernelSUSFS

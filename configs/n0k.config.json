@@ -1,7 +1,7 @@
 [
     {
         "kernelSource": {
-            "name": "N0Kernel-Munch-AOSP-KSUN",
+            "name": "N0Kernel-Munch-AOSP-KSU",
             "repo": "https://github.com/EmanuelCN/kernel_xiaomi_sm8250",
             "branch": "munch",
             "defconfig": "vendor/munch_defconfig"
@@ -35,7 +35,6 @@
             "enable": true,
             "repo": "https://github.com/rifsxd/KernelSU-Next",
             "branch": "next-susfs-dev",
-            "lkm": false,
             "patch": false
         },
         "KernelSUSFS": {
@@ -51,7 +50,7 @@
     },
     {
         "kernelSource": {
-            "name": "N0Kernel-Munch-MIUI-KSUN",
+            "name": "N0Kernel-Munch-MIUI-KSU",
             "repo": "https://github.com/EmanuelCN/kernel_xiaomi_sm8250",
             "branch": "munch",
             "defconfig": "vendor/munch_defconfig"
@@ -85,7 +84,6 @@
             "enable": true,
             "repo": "https://github.com/rifsxd/KernelSU-Next",
             "branch": "next-susfs-dev",
-            "lkm": false,
             "patch": false
         },
         "KernelSUSFS": {
