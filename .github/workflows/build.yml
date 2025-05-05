@@ -260,10 +260,8 @@ jobs:
 
           echo -e "# KernelSU" >> ${{ env.DEFCONFIG }}
           bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU=y
-          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_HAVE_KPROBES=y
-          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_WITH_KPROBES=y
-          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/apk_sign.c.patch
-          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/Makefile.patch
+          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_WITH_KPROBES=n
+          patch -p1 < $GITHUB_WORKSPACE/patch/manager.patch
 
           if [ "${{ env.KSUPATCH }}" == "true" ]; then
             grep -qs "may_mandlock(void)" fs/namespace.c || sed -i '110s|}}||' "$GITHUB_WORKSPACE/patch/ksu_patch.sh"; bash "$GITHUB_WORKSPACE/patch/ksu_patch.sh"
@@ -277,7 +275,7 @@ jobs:
         run: |
           git clone https://gitlab.com/simonpunk/susfs4ksu.git -b "${{env.SFS_BRANCH}}"
 
-          cd ${{env.KERNEL_NAME}}
+          cd ${{ env.KERNEL_NAME }}
           cp ../susfs4ksu/kernel_patches/50_add_susfs_in_${{env.SFS_BRANCH}}.patch ./
           cp ../susfs4ksu/kernel_patches/fs/* ./fs/
           cp ../susfs4ksu/kernel_patches/include/linux/* ./include/linux/
@@ -290,7 +288,7 @@ jobs:
           bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/rk/sched.h.patch
           bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/uvite/task_mmu.c.patch
           bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/n0k/task_mmu.c.patch
-          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/rk/task_mmu.c.patch
+          patch -p1 < $GITHUB_WORKSPACE/patch/fix_susfs.patch
 
           # Apply Hide Stuff patches
           patch -p1 -F 3 < $GITHUB_WORKSPACE/patch/69_hide_stuff.patch || true
@@ -369,8 +367,6 @@ jobs:
           echo "# Extra" >> ${{ env.DEFCONFIG }}
           bash $GITHUB_WORKSPACE/script/config.sh CONFIG_SDCARD_FS=y
           bash $GITHUB_WORKSPACE/script/config.sh CONFIG_BUILD_ARM64_KERNEL_COMPRESSION_GZIP=y
-          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_TMPFS_XATTR=y
-          bash $GITHUB_WORKSPACE/script/config.sh CONFIG_GKI_HIDDEN_GPU_CONFIGS=y
 
           if [ "${{ env.MIUI_DTBO }}" == "true" ]; then
             sed -i 's/qcom,mdss-pan-physical-width-dimension = <70>;$/qcom,mdss-pan-physical-width-dimension = <695>;/' ${{ env.DTSI }}/dsi-panel-l11r-38-08-0a-dsc-cmd.dtsi
@@ -416,7 +412,7 @@ jobs:
             ANYKERNEL_BRANCH=$(echo $CUSTOM_ANYKERNEL3 | jq -r ".branch")
             ANYKERNEL_STRING=$(echo $CUSTOM_ANYKERNEL3 | jq -r ".strname")
             git clone --recursive --depth=1 -j $(nproc) --branch $ANYKERNEL_BRANCH $ANYKERNEL_REPO AnyKernel3
-            sed -i "s|kernel.string=Error by Norikimika|kernel.string=$ANYKERNEL_STRING|g" AnyKernel3/anykernel.sh
+            sed -i "s|^kernel\.string=.*|kernel.string=$ANYKERNEL_STRING|" AnyKernel3/anykernel.sh
             echo "🤔 Use custom AnyKernel3 => ($ANYKERNEL_REPO)"
           else
             git clone --recursive --depth=1 -j $(nproc) https://github.com/osm0sis/AnyKernel3 AnyKernel3
