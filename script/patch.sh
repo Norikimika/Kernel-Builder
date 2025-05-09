@@ -2,28 +2,36 @@
 
 PATCH="$1"
 
-# Extract target file path from the patch
-TARGET_FILE=$(grep '^--- ' "$PATCH" | awk '{print $2}' | sed 's|^a/||; s|^b/||' | sed 's|^/||')
+# Extract all target file paths from the patch
+TARGET_FILES=$(grep '^--- ' "$PATCH" | awk '{print $2}' | sed 's|^a/||; s|^b/||' | sed 's|^/||')
 
-# Backup the target file if it exists
-if [[ -f "$TARGET_FILE" ]]; then
-  cp "$TARGET_FILE" "$TARGET_FILE.bak"
-  echo "[*] Backup created: $TARGET_FILE.bak"
-else
-  echo "[!] Target file not found: $TARGET_FILE"
-fi
+# Backup all target files
+for FILE in $TARGET_FILES; do
+  if [[ -f "$FILE" ]]; then
+    cp "$FILE" "$FILE.bak"
+    echo "[*] Backup created: $FILE.bak"
+  else
+    echo "[!] Target file not found: $FILE"
+  fi
+done
 
 # Try applying the patch
 echo "[*] Applying patch: $PATCH"
 if patch -p1 < "$PATCH"; then
   echo "[✓] Patch applied successfully"
-  [[ -f "$TARGET_FILE.bak" ]] && rm -f "$TARGET_FILE.bak"
+  # Remove backups
+  for FILE in $TARGET_FILES; do
+    [[ -f "$FILE.bak" ]] && rm -f "$FILE.bak"
+  done
   exit 0
 else
   echo "[!] Patch failed"
-  if [[ -f "$TARGET_FILE.bak" ]]; then
-    mv "$TARGET_FILE.bak" "$TARGET_FILE"
-    echo "[*] Original file restored from backup"
-  fi
+  # Restore from backups
+  for FILE in $TARGET_FILES; do
+    if [[ -f "$FILE.bak" ]]; then
+      mv "$FILE.bak" "$FILE"
+      echo "[*] Restored: $FILE"
+    fi
+  done
   exit 0
 fi

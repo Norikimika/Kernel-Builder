@@ -63,7 +63,8 @@ Each kernel compilation configuration file is a `Json` file ending with `.config
       "enable": true,
       "repo": "",
       "branch": "",
-      "patch": true
+      "patch": true,
+      "manager": false
     },
     "KernelSUSFS": {
       "enable": true,
@@ -334,13 +335,15 @@ The KernelSU object controls whether the KernelSU patch is applied. It includes 
   "enable": true,
   "repo": "https://github.com/tiann/KernelSU",
   "branch": "main",
-  "patch": true
+  "patch": true,
+  "manager": false
 }
 ```
 
 `"enable"` Indicates whether KernelSU is enabled or disabled. If set to `true`, the KernelSU patch is applied, and if set to `false`, it is not.
 `"repo"` and `"branch"` Specify a custom repository and branch if a modified version of KernelSU is used.
 `"patch"` Indicates whether the kernel should be patched for KernelSU functionality.
+`"manager"` Specifies support for multiple KernelSU manager variants. If set to `true`, the kernel includes expected signature sizes and hashes to recognize various manager APKs."
 
 ### KernelSUSFS
 

@@ -248,7 +248,8 @@ jobs:
         env:
           KSU_BRANCH: ${{ matrix.CONFIG.KernelSU.branch }}
           DEFCONFIG: arch/${{ steps.generate-args.outputs.ARCH }}/configs/${{ env.KERNEL_DEFCONFIG_PATH }}
-          KSUPATCH: ${{ matrix.CONFIG.KernelSU.patch }}
+          KSU_PATCH: ${{ matrix.CONFIG.KernelSU.patch }}
+          MANAGER_PATCH: ${{ matrix.CONFIG.KernelSU.manager }}
         if: ${{ env.ENABLE_KERNELSU == 'true' }}
         run: |
           # Delete old KernelSU
@@ -261,9 +262,12 @@ jobs:
           echo -e "# KernelSU" >> ${{ env.DEFCONFIG }}
           bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU=y
           bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_WITH_KPROBES=n
-          patch -p1 < $GITHUB_WORKSPACE/patch/manager.patch
 
-          if [ "${{ env.KSUPATCH }}" == "true" ]; then
+          if [ "${{ env.MANAGER_PATCH }}" == "true" ]; then
+            patch -p1 < $GITHUB_WORKSPACE/patch/manager.patch
+          fi
+
+          if [ "${{ env.KSU_PATCH }}" == "true" ]; then
             grep -qs "may_mandlock(void)" fs/namespace.c || sed -i '110s|}}||' "$GITHUB_WORKSPACE/patch/ksu_patch.sh"; bash "$GITHUB_WORKSPACE/patch/ksu_patch.sh"
           fi
 
@@ -380,6 +384,10 @@ jobs:
             bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/uvite/kona-v2-gpu.dtsi.patch
             bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/n0k/kona-v2-gpu.dtsi.patch
           fi
+
+          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/uvite/bypass-charging.patch
+          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/n0k/bypass-charging.patch
+          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/rk/bypass-charging.patch
 
           cat ${{ env.DEFCONFIG }}
 
