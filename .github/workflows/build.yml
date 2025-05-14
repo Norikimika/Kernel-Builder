@@ -264,7 +264,7 @@ jobs:
           bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU_WITH_KPROBES=n
 
           if [ "${{ env.MANAGER_PATCH }}" == "true" ]; then
-            patch -p1 < $GITHUB_WORKSPACE/patch/manager.patch
+            bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/manager.patch
           fi
 
           if [ "${{ env.KSU_PATCH }}" == "true" ]; then
