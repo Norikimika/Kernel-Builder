@@ -472,7 +472,7 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           KSU_URL: ${{ secrets.MANAGER_URL }}
         run: |
-          python3 $GITHUB_WORKSPACE/script/errorbot.py > /dev/null
+          python3 $GITHUB_WORKSPACE/script/errorbot.py
 
       - name: 🧧 Create GitHub Release => (${{ env.BUILD_DATE }})
         env:

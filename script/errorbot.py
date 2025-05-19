@@ -25,10 +25,19 @@ def send_file_with_caption(chat_id, file_path, caption, topic_id=None):
     if topic_id:
         data["message_thread_id"] = topic_id
 
-    with open(file_path, "rb") as file:
-        files = {"document": file}
-        response = requests.post(url, data=data, files=files)
-        print("Response:", response.json())
+    try:
+        with open(file_path, "rb") as file:
+            files = {"document": file}
+            response = requests.post(url, data=data, files=files)
+
+        # Only print status
+        if response.status_code == 200:
+            print("✅ File successfully sent to Telegram.")
+        else:
+            print(f"❌ Failed to send file. Status: {response.status_code}")
+            print("Response snippet:", response.text[:200])  # Limit output
+    except Exception as e:
+        print(f"❌ Error sending file: {e}")
 
 def main():
     # Ensure required variables are set
@@ -36,7 +45,7 @@ def main():
         print("❌ Missing required environment variables.")
         return
 
-    # Construct the caption with f-string
+    # HTML caption
     caption = (
         "<b>✹ Build Type</b>\n"
         f"<i>-> {BUILD_TYPE}</i>\n"
@@ -50,7 +59,6 @@ def main():
         f"<i>-> <a href='{RUN_URL}'>Run</a></i>\n"
     )
 
-    # Send file with caption
     send_file_with_caption(CHAT_ID, FILE_PATH, caption, TOPIC_ID)
 
 if __name__ == "__main__":
