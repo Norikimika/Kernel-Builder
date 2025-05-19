@@ -292,10 +292,9 @@ jobs:
           bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/rk/sched.h.patch
           bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/uvite/task_mmu.c.patch
           bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/n0k/task_mmu.c.patch
-          patch -p1 < $GITHUB_WORKSPACE/patch/fix_susfs.patch
 
           # Apply Hide Stuff patches
-          patch -p1 -F 3 < $GITHUB_WORKSPACE/patch/69_hide_stuff.patch || true
+          patch -p1 -F 3 < $GITHUB_WORKSPACE/patch/69_hide_stuff.patch
 
           # Add SUSFS configuration settings
           echo "# KernelSU - SUSFS" >> ${{ env.DEFCONFIG }}
@@ -385,9 +384,7 @@ jobs:
             bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/n0k/kona-v2-gpu.dtsi.patch
           fi
 
-          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/uvite/bypass-charging.patch
-          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/n0k/bypass-charging.patch
-          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/rk/bypass-charging.patch
+          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/bypass_charging.patch
 
           cat ${{ env.DEFCONFIG }}
 
