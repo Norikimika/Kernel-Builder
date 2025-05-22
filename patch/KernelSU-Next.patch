@@ -1,7 +1,7 @@
-From 93f40aec7fff3d46ba5af688a7b9bdd67909ecb1 Mon Sep 17 00:00:00 2001
+From f9d69ac1be29790430ab1d5c4895ef27b2297d50 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?=E3=80=86Ei?=
  <197677662+Norikimika@users.noreply.github.com>
-Date: Thu, 22 May 2025 09:49:40 +0800
+Date: Thu, 22 May 2025 18:38:23 +0800
 Subject: [PATCH] kernel: patch susfs to KernelSU-Next
 
 ---
@@ -10,7 +10,7 @@ Subject: [PATCH] kernel: patch susfs to KernelSU-Next
  KernelSU-Next/kernel/allowlist.c       |  10 +-
  KernelSU-Next/kernel/apk_sign.c        |   2 +-
  KernelSU-Next/kernel/apk_sign.h        |   2 +-
- KernelSU-Next/kernel/core_hook.c       | 538 +++++++++++++++++++++++++++++++++++++--
+ KernelSU-Next/kernel/core_hook.c       | 546 +++++++++++++++++++++++++++++++++++++--
  KernelSU-Next/kernel/kernel_compat.c   |  10 +
  KernelSU-Next/kernel/kernel_compat.h   |   1 +
  KernelSU-Next/kernel/ksu.c             |  16 +-
@@ -23,7 +23,7 @@ Subject: [PATCH] kernel: patch susfs to KernelSU-Next
  KernelSU-Next/kernel/sucompat.c        |  72 +++++-
  KernelSU-Next/kernel/throne_tracker.c  |   4 +-
  KernelSU-Next/kernel/throne_tracker.h  |   2 +-
- 18 files changed, 974 insertions(+), 64 deletions(-)
+ 18 files changed, 982 insertions(+), 64 deletions(-)
 
 diff --git a/KernelSU-Next/kernel/Kconfig b/KernelSU-Next/kernel/Kconfig
 index ab6dd5c9..f4ab963a 100644
@@ -340,7 +340,7 @@ index bed501c4..e02aa514 100644
  
  #endif
 diff --git a/KernelSU-Next/kernel/core_hook.c b/KernelSU-Next/kernel/core_hook.c
-index 7fd2d455..79857d76 100644
+index 7fd2d455..30f6a172 100644
 --- a/KernelSU-Next/kernel/core_hook.c
 +++ b/KernelSU-Next/kernel/core_hook.c
 @@ -35,6 +35,10 @@
@@ -910,7 +910,7 @@ index 7fd2d455..79857d76 100644
  {
  	struct path path;
  	int err = kern_path(mnt, 0, &path);
-@@ -588,12 +1026,35 @@ static void try_umount(const char *mnt, bool check_mnt, int flags)
+@@ -588,12 +1026,43 @@ static void try_umount(const char *mnt, bool check_mnt, int flags)
  		return;
  	}
  
@@ -940,13 +940,21 @@ index 7fd2d455..79857d76 100644
 +	ksu_try_umount("/data/adb/modules", false, MNT_DETACH, uid);
 +	/* For both Legacy KSU and Magic Mount KSU */
 +	ksu_try_umount("/debug_ramdisk", true, MNT_DETACH, uid);
++	ksu_try_umount("/sbin", false, MNT_DETACH, uid);
++	
++	// try umount hosts file
++	ksu_try_umount("/system/etc/hosts", false, MNT_DETACH, uid);
++
++	// try umount lsposed dex2oat bins
++	ksu_try_umount("/apex/com.android.art/bin/dex2oat64", false, MNT_DETACH, uid);
++	ksu_try_umount("/apex/com.android.art/bin/dex2oat32", false, MNT_DETACH, uid);
 +}
 +#endif
 +
  int ksu_handle_setuid(struct cred *new, const struct cred *old)
  {
  	// this hook is used for umounting overlayfs for some uid, if there isn't any module mounted, just ignore it!
-@@ -613,6 +1074,20 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
+@@ -613,6 +1082,20 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
  		return 0;
  	}
  
@@ -967,7 +975,7 @@ index 7fd2d455..79857d76 100644
  	if (!is_appuid(new_uid) || is_unsupported_uid(new_uid.val)) {
  		// pr_info("handle setuid ignore non application or isolated uid: %d\n", new_uid.val);
  		return 0;
-@@ -622,7 +1097,17 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
+@@ -622,7 +1105,17 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
  		// pr_info("handle setuid ignore allowed application: %d\n", new_uid.val);
  		return 0;
  	}
@@ -985,7 +993,7 @@ index 7fd2d455..79857d76 100644
  	if (!ksu_uid_should_umount(new_uid.val)) {
  		return 0;
  	} else {
-@@ -631,10 +1116,12 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
+@@ -631,10 +1124,12 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
  #endif
  	}
  
@@ -999,7 +1007,7 @@ index 7fd2d455..79857d76 100644
  	if (!is_zygote_child) {
  		pr_info("handle umount ignore non zygote child: %d\n",
  			current->pid);
-@@ -646,25 +1133,30 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
+@@ -646,25 +1141,30 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
  		current->pid);
  #endif
  
