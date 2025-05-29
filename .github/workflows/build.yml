@@ -283,7 +283,7 @@ jobs:
           cp ../susfs4ksu/kernel_patches/include/linux/* ./include/linux/
 
           # Apply SUSFS patch
-          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/KernelSU-Next.patch
+          patch -p1 < $GITHUB_WORKSPACE/patch/KernelSU-Next.patch
           patch -p1 < 50_add_susfs_in_${{env.SFS_BRANCH}}.patch || true
 
           # Fix SUSFS patch
