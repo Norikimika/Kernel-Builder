@@ -1,7 +1,7 @@
-From f9d69ac1be29790430ab1d5c4895ef27b2297d50 Mon Sep 17 00:00:00 2001
+From c715bd9191be76191a4b5b0e568ab2777f3f2969 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?=E3=80=86Ei?=
  <197677662+Norikimika@users.noreply.github.com>
-Date: Thu, 22 May 2025 18:38:23 +0800
+Date: Thu, 5 Jun 2025 11:58:23 +0800
 Subject: [PATCH] kernel: patch susfs to KernelSU-Next
 
 ---
@@ -340,7 +340,7 @@ index bed501c4..e02aa514 100644
  
  #endif
 diff --git a/KernelSU-Next/kernel/core_hook.c b/KernelSU-Next/kernel/core_hook.c
-index 7fd2d455..30f6a172 100644
+index 2fbb42a1..5fa3c49a 100644
 --- a/KernelSU-Next/kernel/core_hook.c
 +++ b/KernelSU-Next/kernel/core_hook.c
 @@ -35,6 +35,10 @@
@@ -1035,7 +1035,7 @@ index 7fd2d455..30f6a172 100644
 -	try_umount("/sbin", false, MNT_DETACH);
 +	ksu_try_umount("/debug_ramdisk", false, MNT_DETACH);
 +	ksu_try_umount("/sbin", false, MNT_DETACH);
- 	
+ 
  	// try umount hosts file
 -	try_umount("/system/etc/hosts", false, MNT_DETACH);
 +	ksu_try_umount("/system/etc/hosts", false, MNT_DETACH);
@@ -1138,7 +1138,7 @@ index 11864141..a8a02c2f 100644
  MODULE_LICENSE("GPL");
  MODULE_AUTHOR("weishu");
 diff --git a/KernelSU-Next/kernel/ksud.c b/KernelSU-Next/kernel/ksud.c
-index 74538aeb..78b60b84 100644
+index 0bbc73ac..f44e7680 100644
 --- a/KernelSU-Next/kernel/ksud.c
 +++ b/KernelSU-Next/kernel/ksud.c
 @@ -64,6 +64,9 @@ bool ksu_vfs_read_hook __read_mostly = true;
@@ -1594,10 +1594,10 @@ index 11b2a551..afd8f4e9 100644
 +#endif // #ifdef CONFIG_KSU_SUSFS_SUS_SU
 +
 diff --git a/KernelSU-Next/kernel/throne_tracker.c b/KernelSU-Next/kernel/throne_tracker.c
-index f76f01b8..84af711f 100644
+index daec1837..6cbe3f03 100644
 --- a/KernelSU-Next/kernel/throne_tracker.c
 +++ b/KernelSU-Next/kernel/throne_tracker.c
-@@ -188,7 +188,7 @@ FILLDIR_RETURN_TYPE my_actor(struct dir_context *ctx, const char *name,
+@@ -212,7 +212,7 @@ FILLDIR_RETURN_TYPE my_actor(struct dir_context *ctx, const char *name,
  				}
  			}
  
@@ -1606,15 +1606,15 @@ index f76f01b8..84af711f 100644
  			pr_info("Found new base.apk at path: %s, is_manager: %d\n",
  				dirpath, is_manager);
  			if (is_manager) {
-@@ -284,7 +284,7 @@ static bool is_uid_exist(uid_t uid, char *package, void *data)
- 	return exist;
+@@ -428,7 +428,7 @@ static int throne_tracker_thread(void *data)
+ 	return 0;
  }
  
 -void track_throne()
 +void ksu_track_throne()
  {
- 	struct file *fp =
- 		ksu_filp_open_compat(SYSTEM_PACKAGES_LIST_PATH, O_RDONLY, 0);
+ 	throne_thread = kthread_run(throne_tracker_thread, NULL, "throne_tracker");
+ 	if (IS_ERR(throne_thread)) {
 diff --git a/KernelSU-Next/kernel/throne_tracker.h b/KernelSU-Next/kernel/throne_tracker.h
 index 5d7f4770..428c737d 100644
 --- a/KernelSU-Next/kernel/throne_tracker.h
