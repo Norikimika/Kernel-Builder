@@ -1,5 +1,6 @@
 import os
 import requests
+import html
 
 # Get environment variables
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -11,6 +12,8 @@ FILE_PATH = os.getenv('ANYKERNEL3_FILE')
 COMMIT_URL = os.getenv('COMMIT_URL', '#')
 RUN_URL = os.getenv('RUN_URL', '#')
 KSU_URL = os.getenv('KSU_URL', '#')
+COMMIT_MESSAGE = os.getenv('COMMIT_MESSAGE', '#')
+COMMIT_MSG = html.escape(COMMIT_MESSAGE)
 
 def send_file_with_caption(chat_id, file_path, caption, topic_id=None):
     """Send a file with a caption to a Telegram chat or a specific topic."""
@@ -54,6 +57,7 @@ def main():
         "<b>✹ Manager</b>\n"
         f"<i>-> <a href='{KSU_URL}'>Release</a></i>\n"
         "<b>✹ Commit</b>\n"
+        f"<pre>{COMMIT_MSG}</pre>"
         f"<i>-> <a href='{COMMIT_URL}'>View</a></i>\n"
         "<b>✹ Workflow</b>\n"
         f"<i>-> <a href='{RUN_URL}'>Run</a></i>\n"

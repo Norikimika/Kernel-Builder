@@ -470,6 +470,7 @@ jobs:
           COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           KSU_URL: ${{ secrets.MANAGER_URL }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           python3 $GITHUB_WORKSPACE/script/errorbot.py
 
