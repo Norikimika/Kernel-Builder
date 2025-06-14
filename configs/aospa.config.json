@@ -35,8 +35,7 @@
             "enable": true,
             "repo": "https://github.com/rifsxd/KernelSU-Next",
             "branch": "next",
-            "patch": true,
-            "manager": true
+            "patch": true
         },
         "KernelSUSFS": {
             "enable": true,

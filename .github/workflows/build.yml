@@ -248,7 +248,6 @@ jobs:
           KSU_BRANCH: ${{ matrix.CONFIG.KernelSU.branch }}
           DEFCONFIG: arch/${{ steps.generate-args.outputs.ARCH }}/configs/${{ env.KERNEL_DEFCONFIG_PATH }}
           KSU_PATCH: ${{ matrix.CONFIG.KernelSU.patch }}
-          MANAGER_PATCH: ${{ matrix.CONFIG.KernelSU.manager }}
         if: ${{ env.ENABLE_KERNELSU == 'true' }}
         run: |
           # Delete old KernelSU
@@ -260,10 +259,6 @@ jobs:
 
           echo -e "# KernelSU" >> ${{ env.DEFCONFIG }}
           bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU=y
-
-          if [ "${{ env.MANAGER_PATCH }}" == "true" ]; then
-            bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/manager.patch
-          fi
 
           if [ "${{ env.KSU_PATCH }}" == "true" ]; then
             grep -qs "may_mandlock(void)" fs/namespace.c || sed -i '110s|}}||' "$GITHUB_WORKSPACE/patch/ksu_patch.sh"; bash "$GITHUB_WORKSPACE/patch/ksu_patch.sh"
