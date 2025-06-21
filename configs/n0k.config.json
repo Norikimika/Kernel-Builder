@@ -45,7 +45,58 @@
         "Extra": {
             "enable": true,
             "dtboMIUI": false,
-            "uv": true
+            "uv": true,
+            "ir": false
+        }
+    },
+    {
+        "kernelSource": {
+            "name": "N0Kernel-Munch-AOSP-IR-KSU",
+            "repo": "https://github.com/EmanuelCN/kernel_xiaomi_sm8250",
+            "branch": "munch",
+            "defconfig": "vendor/munch_defconfig"
+        },
+        "toolchains": [
+            {
+                "name": "clang",
+                "bash": "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman",
+                "binaryEnv": ["./bin"]
+            }
+        ],
+        "enableCcache": true,
+        "params": {
+            "ARCH": "arm64",
+            "CC": "clang",
+            "externalCommands": {
+                "CROSS_COMPILE": "aarch64-linux-gnu-",
+                "LLVM": "1",
+                "LLVM_IAS": "1"
+            }
+        },
+        "AnyKernel3": {
+            "release": false,
+            "custom": {
+                "repo": "https://github.com/Norikimika/AnyKernel3",
+                "branch": "munch",
+                "strname": "N0Kernel by EmanuelCN"
+            }
+        },
+        "KernelSU": {
+            "enable": true,
+            "repo": "https://github.com/rifsxd/KernelSU-Next",
+            "branch": "next",
+            "patch": false
+        },
+        "KernelSUSFS": {
+            "enable": true,
+            "branch": "kernel-4.19"
+        },
+        "enableLXC": false,
+        "Extra": {
+            "enable": true,
+            "dtboMIUI": false,
+            "uv": true,
+            "ir": true
         }
     },
     {
@@ -94,7 +145,8 @@
         "Extra": {
             "enable": true,
             "dtboMIUI": true,
-            "uv": true
+            "uv": true,
+            "ir": false
         }
     }
 ]

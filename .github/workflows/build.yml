@@ -358,6 +358,7 @@ jobs:
           DEFCONFIG: arch/${{ steps.generate-args.outputs.ARCH }}/configs/${{ env.KERNEL_DEFCONFIG_PATH }}
           DTSI: arch/${{ steps.generate-args.outputs.ARCH }}/boot/dts/vendor/qcom
           UV: ${{ matrix.CONFIG.Extra.uv }}
+          IR: ${{ matrix.CONFIG.Extra.ir }}
         if: ${{ env.ENABLE_EXTRA == 'true' }}
         run: |
           # Add additional config setting
@@ -376,6 +377,10 @@ jobs:
           if [ "${{ env.UV }}" == "true" ]; then
             bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/uvite/kona-v2-gpu.dtsi.patch
             bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/n0k/kona-v2-gpu.dtsi.patch
+          fi
+
+          if [ "${{ env.IR }}" == "true" ]; then
+            bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/n0k/xiaomi-sm8250-common.dtsi.patch
           fi
 
           bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/bypass_charging.patch

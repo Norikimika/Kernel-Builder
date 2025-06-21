@@ -45,7 +45,8 @@
         "Extra": {
             "enable": true,
             "dtboMIUI": false,
-            "uv": true
+            "uv": true,
+            "ir": false
         }
     }
 ]
