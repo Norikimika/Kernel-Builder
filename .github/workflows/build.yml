@@ -443,7 +443,7 @@ jobs:
           rm -rf ramdisk
           rm -rf LICENSE
           rm -rf README.md
-          zip -q -r "${{ env.ANYKERNEL3_FILE }}.zip" *
+          zip -q -r -9 "${{ env.ANYKERNEL3_FILE }}.zip" *
 
       - name: "💾 Upload AnyKernel3 image => (${{ env.BUILD_DATE }})"
         env:
