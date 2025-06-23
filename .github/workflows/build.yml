@@ -384,6 +384,7 @@ jobs:
           fi
 
           bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/bypass_charging.patch
+          bash $GITHUB_WORKSPACE/script/patch.sh $GITHUB_WORKSPACE/patch/n0k/mkcompile_h.patch
 
           cat ${{ env.DEFCONFIG }}
 
