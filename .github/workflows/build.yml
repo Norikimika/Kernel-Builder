@@ -369,9 +369,6 @@ jobs:
           if [ "${{ env.MIUI_DTBO }}" == "true" ]; then
             sed -i 's/qcom,mdss-pan-physical-width-dimension = <70>;$/qcom,mdss-pan-physical-width-dimension = <695>;/' ${{ env.DTSI }}/dsi-panel-l11r-38-08-0a-dsc-cmd.dtsi
             sed -i 's/qcom,mdss-pan-physical-height-dimension = <155>;$/qcom,mdss-pan-physical-height-dimension = <1546>;/' ${{ env.DTSI }}/dsi-panel-l11r-38-08-0a-dsc-cmd.dtsi
-          else
-            sed -i 's/qcom,mdss-pan-physical-width-dimension = <695>;$/qcom,mdss-pan-physical-width-dimension = <70>;/' ${{ env.DTSI }}/dsi-panel-l11r-38-08-0a-dsc-cmd.dtsi
-            sed -i 's/qcom,mdss-pan-physical-height-dimension = <1546>;$/qcom,mdss-pan-physical-height-dimension = <155>;/' ${{ env.DTSI }}/dsi-panel-l11r-38-08-0a-dsc-cmd.dtsi
           fi
 
           if [ "${{ env.UV }}" == "true" ]; then

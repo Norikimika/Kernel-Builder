@@ -1,7 +1,7 @@
-From f1f20dd74d867aba697318e85891ee3ed06be9eb Mon Sep 17 00:00:00 2001
+From 46cfa4357590f90229bc16a5fadf2a5005ebc795 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?=E3=80=86Ei?=
  <197677662+Norikimika@users.noreply.github.com>
-Date: Sat, 14 Jun 2025 23:09:30 +0800
+Date: Fri, 11 Jul 2025 23:40:05 +0800
 Subject: [PATCH] kernel: patch susfs to KernelSU-Next
 
 ---
@@ -10,7 +10,7 @@ Subject: [PATCH] kernel: patch susfs to KernelSU-Next
  KernelSU-Next/kernel/allowlist.c       |  10 +-
  KernelSU-Next/kernel/apk_sign.c        |   9 +-
  KernelSU-Next/kernel/apk_sign.h        |   2 +-
- KernelSU-Next/kernel/core_hook.c       | 546 +++++++++++++++++++++++++++++++++++++--
+ KernelSU-Next/kernel/core_hook.c       | 532 +++++++++++++++++++++++++++++++++++++--
  KernelSU-Next/kernel/kernel_compat.c   |  10 +
  KernelSU-Next/kernel/kernel_compat.h   |   1 +
  KernelSU-Next/kernel/ksu.c             |  16 +-
@@ -23,7 +23,7 @@ Subject: [PATCH] kernel: patch susfs to KernelSU-Next
  KernelSU-Next/kernel/sucompat.c        |  72 +++++-
  KernelSU-Next/kernel/throne_tracker.c  |   4 +-
  KernelSU-Next/kernel/throne_tracker.h  |   2 +-
- 18 files changed, 988 insertions(+), 65 deletions(-)
+ 18 files changed, 973 insertions(+), 66 deletions(-)
 
 diff --git a/KernelSU-Next/kernel/Kconfig b/KernelSU-Next/kernel/Kconfig
 index ab6dd5c..f4ab963 100644
@@ -314,7 +314,7 @@ index bcdac3f..6f2557c 100644
  	return ksu_queue_work(&ksu_save_work);
  }
 diff --git a/KernelSU-Next/kernel/apk_sign.c b/KernelSU-Next/kernel/apk_sign.c
-index c1e803d..85ea484 100644
+index c1e803d..1916636 100644
 --- a/KernelSU-Next/kernel/apk_sign.c
 +++ b/KernelSU-Next/kernel/apk_sign.c
 @@ -315,7 +315,7 @@ module_param_cb(ksu_debug_manager_uid, &expected_size_ops,
@@ -332,7 +332,7 @@ index c1e803d..85ea484 100644
  
 -	return check_v2_signature(path, EXPECTED_NEXT_SIZE, EXPECTED_NEXT_HASH);
 +	return (check_v2_signature(path, 0x033b, "c371061b19d8c7d7d6133c6a9bafe198fa944e50c1b31c9d8daa8d7f1fc2d2d6") // https://github.com/tiann/KernelSU
-+	|| check_v2_signature(path, 0x3e6, "79e590113c4c4c0c222978e413a5faa801666957b1212a328e46c00c69821bf7") // https://github.com/rifsxd/KernelSU-Next
++	|| check_v2_signature(path, EXPECTED_NEXT_SIZE, EXPECTED_NEXT_HASH) // https://github.com/rifsxd/KernelSU-Next
 +	|| check_v2_signature(path, 0x396, "f415f4ed9435427e1fdf7f1fccd4dbc07b3d6b8751e4dbcec6f19671f427870b") // https://github.com/rsuntk/KernelSU
 +	|| check_v2_signature(path, 0x363, "4359c171f32543394cbc23ef908c4bb94cad7c8087002ba164c8230948c21549") // https://github.com/backslashxx/KernelSU
 +	|| check_v2_signature(path, 0x35c, "947ae944f3de4ed4c21a7e4f7953ecf351bfa2b36239da37a34111ad29993eef") // https://github.com/ShirkNeko/SukiSU-Ultra
@@ -351,7 +351,7 @@ index bed501c..e02aa51 100644
  
  #endif
 diff --git a/KernelSU-Next/kernel/core_hook.c b/KernelSU-Next/kernel/core_hook.c
-index 2307e66..2238acd 100644
+index 1b7f0ea..b6202c4 100644
 --- a/KernelSU-Next/kernel/core_hook.c
 +++ b/KernelSU-Next/kernel/core_hook.c
 @@ -35,6 +35,10 @@
@@ -365,7 +365,14 @@ index 2307e66..2238acd 100644
  #include "allowlist.h"
  #include "arch.h"
  #include "core_hook.h"
-@@ -51,17 +55,88 @@
+@@ -44,24 +48,93 @@
+ #include "manager.h"
+ #include "selinux/selinux.h"
+ #include "throne_tracker.h"
+-#include "throne_tracker.h"
+ #include "kernel_compat.h"
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0) || defined(KSU_COMPAT_GET_CRED_RCU)
  #define KSU_GET_CRED_RCU
  #endif
  
@@ -389,7 +396,6 @@ index 2307e66..2238acd 100644
 +#endif // #ifdef CONFIG_KSU_SUSFS_TRY_UMOUNT
 +#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 +static bool susfs_is_umount_for_zygote_system_process_enabled = false;
-+extern bool susfs_hide_sus_mnts_for_all_procs;
 +#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 +#ifdef CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT
 +extern bool susfs_is_auto_add_sus_bind_mount_enabled;
@@ -457,7 +463,7 @@ index 2307e66..2238acd 100644
  		// we are manager, allow!
  		return true;
  	}
-@@ -139,7 +214,7 @@ static void disable_seccomp(void)
+@@ -139,7 +212,7 @@ static void disable_seccomp(void)
  #endif
  }
  
@@ -466,7 +472,7 @@ index 2307e66..2238acd 100644
  {
  	struct cred *cred;
  
-@@ -197,7 +272,7 @@ void escape_to_root(void)
+@@ -197,7 +270,7 @@ void escape_to_root(void)
  	disable_seccomp();
  	spin_unlock_irq(&current->sighand->siglock);
  
@@ -475,7 +481,7 @@ index 2307e66..2238acd 100644
  }
  
  int ksu_handle_rename(struct dentry *old_dentry, struct dentry *new_dentry)
-@@ -234,7 +309,7 @@ int ksu_handle_rename(struct dentry *old_dentry, struct dentry *new_dentry)
+@@ -234,7 +307,7 @@ int ksu_handle_rename(struct dentry *old_dentry, struct dentry *new_dentry)
  	pr_info("renameat: %s -> %s, new path: %s\n", old_dentry->d_iname,
  		new_dentry->d_iname, buf);
  
@@ -484,7 +490,7 @@ index 2307e66..2238acd 100644
  
  	return 0;
  }
-@@ -279,7 +354,7 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
+@@ -279,7 +352,7 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
  	}
  
  	bool from_root = 0 == current_uid().val;
@@ -493,7 +499,7 @@ index 2307e66..2238acd 100644
  
  	if (!from_root && !from_manager) {
  		// only root or manager can access this interface
-@@ -303,7 +378,7 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
+@@ -303,7 +376,7 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
  	if (arg2 == CMD_GRANT_ROOT) {
  		if (is_allow_su()) {
  			pr_info("allow root for: %d\n", current_uid().val);
@@ -502,7 +508,7 @@ index 2307e66..2238acd 100644
  			if (copy_to_user(result, &reply_ok, sizeof(reply_ok))) {
  				pr_err("grant_root: prctl reply error\n");
  			}
-@@ -347,10 +422,13 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
+@@ -358,10 +431,13 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
  		switch (arg3) {
  		case EVENT_POST_FS_DATA: {
  			static bool post_fs_data_lock = false;
@@ -517,7 +523,7 @@ index 2307e66..2238acd 100644
  			}
  			break;
  		}
-@@ -378,7 +456,7 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
+@@ -389,7 +465,7 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
  		if (!from_root) {
  			return 0;
  		}
@@ -526,7 +532,7 @@ index 2307e66..2238acd 100644
  			if (copy_to_user(result, &reply_ok, sizeof(reply_ok))) {
  				pr_err("sepolicy: prctl reply error\n");
  			}
-@@ -439,6 +517,352 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
+@@ -450,6 +526,338 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
  		return 0;
  	}
  
@@ -567,20 +573,6 @@ index 2307e66..2238acd 100644
 +				pr_info("susfs: copy_to_user() failed\n");
 +			return 0;
 +		}
-+#ifdef CMD_SUSFS_HIDE_SUS_MNTS_FOR_ALL_PROCS
-+		if (arg2 == CMD_SUSFS_HIDE_SUS_MNTS_FOR_ALL_PROCS) {
-+			int error = 0;
-+			if (arg3 != 0 && arg3 != 1) {
-+				pr_err("susfs: CMD_SUSFS_HIDE_SUS_MNTS_FOR_ALL_PROCS -> arg3 can only be 0 or 1\n");
-+				return 0;
-+			}
-+			susfs_hide_sus_mnts_for_all_procs = arg3;
-+			pr_info("susfs: CMD_SUSFS_HIDE_SUS_MNTS_FOR_ALL_PROCS -> susfs_hide_sus_mnts_for_all_procs: %lu\n", arg3);
-+			if (copy_to_user((void __user*)arg5, &error, sizeof(error)))
-+				pr_info("susfs: copy_to_user() failed\n");
-+			return 0;
-+		}
-+#endif
 +#endif //#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 +#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
 +		if (arg2 == CMD_SUSFS_ADD_SUS_KSTAT) {
@@ -879,7 +871,7 @@ index 2307e66..2238acd 100644
  	// all other cmds are for 'root manager'
  	if (!from_manager) {
  		return 0;
-@@ -504,6 +928,12 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
+@@ -515,6 +923,12 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
  		}
  
  		if (enabled) {
@@ -892,7 +884,7 @@ index 2307e66..2238acd 100644
  			ksu_sucompat_init();
  		} else {
  			ksu_sucompat_exit();
-@@ -542,11 +972,15 @@ static bool should_umount(struct path *path)
+@@ -553,11 +967,15 @@ static bool should_umount(struct path *path)
  		return false;
  	}
  
@@ -908,7 +900,7 @@ index 2307e66..2238acd 100644
  }
  
  static int ksu_umount_mnt(struct path *path, int flags)
-@@ -559,7 +993,11 @@ static int ksu_umount_mnt(struct path *path, int flags)
+@@ -570,7 +988,11 @@ static int ksu_umount_mnt(struct path *path, int flags)
  #endif
  }
  
@@ -921,7 +913,7 @@ index 2307e66..2238acd 100644
  {
  	struct path path;
  	int err = kern_path(mnt, 0, &path);
-@@ -579,12 +1017,43 @@ static void try_umount(const char *mnt, bool check_mnt, int flags)
+@@ -590,12 +1012,43 @@ static void try_umount(const char *mnt, bool check_mnt, int flags)
  		return;
  	}
  
@@ -965,7 +957,7 @@ index 2307e66..2238acd 100644
  int ksu_handle_setuid(struct cred *new, const struct cred *old)
  {
  	// this hook is used for umounting overlayfs for some uid, if there isn't any module mounted, just ignore it!
-@@ -604,6 +1073,20 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
+@@ -615,6 +1068,20 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
  		return 0;
  	}
  
@@ -986,7 +978,7 @@ index 2307e66..2238acd 100644
  	if (!is_appuid(new_uid) || is_unsupported_uid(new_uid.val)) {
  		// pr_info("handle setuid ignore non application or isolated uid: %d\n", new_uid.val);
  		return 0;
-@@ -613,7 +1096,17 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
+@@ -624,7 +1091,17 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
  		// pr_info("handle setuid ignore allowed application: %d\n", new_uid.val);
  		return 0;
  	}
@@ -1004,7 +996,7 @@ index 2307e66..2238acd 100644
  	if (!ksu_uid_should_umount(new_uid.val)) {
  		return 0;
  	} else {
-@@ -622,10 +1115,12 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
+@@ -633,10 +1110,12 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
  #endif
  	}
  
@@ -1018,7 +1010,7 @@ index 2307e66..2238acd 100644
  	if (!is_zygote_child) {
  		pr_info("handle umount ignore non zygote child: %d\n",
  			current->pid);
-@@ -637,25 +1132,30 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
+@@ -648,25 +1127,30 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
  		current->pid);
  #endif
  
@@ -1255,24 +1247,26 @@ index be5bbce..93fa267 100644
  	return unlikely(ksu_manager_uid == current_uid().val);
  }
 diff --git a/KernelSU-Next/kernel/selinux/rules.c b/KernelSU-Next/kernel/selinux/rules.c
-index dc1ca5d..727911f 100644
+index 38390b3..5d83268 100644
 --- a/KernelSU-Next/kernel/selinux/rules.c
 +++ b/KernelSU-Next/kernel/selinux/rules.c
-@@ -36,9 +36,9 @@ static struct policydb *get_policydb(void)
- 	return db;
- }
+@@ -38,11 +38,11 @@ static struct policydb *get_policydb(void)
+ 
+ static DEFINE_MUTEX(ksu_rules);
  
 -void apply_kernelsu_rules()
 +void ksu_apply_kernelsu_rules()
  {
+ 	struct policydb *db;
+ 
 -	if (!getenforce()) {
 +	if (!ksu_getenforce()) {
  		pr_info("SELinux permissive or disabled, apply rules!\n");
  	}
  
-@@ -134,6 +134,14 @@ void apply_kernelsu_rules()
-     ksu_allow(db, "system_server", KERNEL_SU_DOMAIN, "process", "getpgid");
-     ksu_allow(db, "system_server", KERNEL_SU_DOMAIN, "process", "sigkill");
+@@ -139,6 +139,14 @@ void apply_kernelsu_rules()
+ 	ksu_allow(db, "system_server", KERNEL_SU_DOMAIN, "process", "getpgid");
+ 	ksu_allow(db, "system_server", KERNEL_SU_DOMAIN, "process", "sigkill");
  
 +#ifdef CONFIG_KSU_SUSFS
 +	// Allow umount in zygote process without installing zygisk
@@ -1282,10 +1276,10 @@ index dc1ca5d..727911f 100644
 +	susfs_set_zygote_sid();
 +#endif
 +
- 	rcu_read_unlock();
+ 	mutex_unlock(&ksu_rules);
  }
  
-@@ -223,13 +231,13 @@ static void reset_avc_cache()
+@@ -228,13 +236,13 @@ static void reset_avc_cache()
  	selinux_xfrm_notify_policyload();
  }
  
@@ -1640,5 +1634,5 @@ index f33e4cb..98bb9d5 100644
  bool is_lock_held(const char *path);
  
 -- 
-2.49.0
+2.50.1
 
