@@ -46,8 +46,7 @@
         "Extra": {
             "enable": true,
             "dtboMIUI": false,
-            "uv": false,
-            "ir": false
+            "uv": false
         }
     },
     {
@@ -97,8 +96,7 @@
         "Extra": {
             "enable": true,
             "dtboMIUI": true,
-            "uv": false,
-            "ir": false
+            "uv": false
         }
     }
 ]
