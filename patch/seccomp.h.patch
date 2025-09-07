@@ -1,0 +1,18 @@
+--- /include/linux/seccomp.h	2025-09-07 04:42:59.012995085 +0800
++++ /include/linux/seccomp.h	2025-09-07 05:13:58.344994376 +0800
+@@ -11,6 +11,7 @@
+ #ifdef CONFIG_SECCOMP
+ 
+ #include <linux/thread_info.h>
++#include <linux/atomic.h>
+ #include <asm/seccomp.h>
+ 
+ struct seccomp_filter;
+@@ -27,6 +28,7 @@
+  */
+ struct seccomp {
+ 	int mode;
++	atomic_t filter_count;
+ 	struct seccomp_filter *filter;
+ };
+ 

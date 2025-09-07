@@ -259,6 +259,7 @@ jobs:
 
           echo -e "# KernelSU" >> ${{ env.DEFCONFIG }}
           bash $GITHUB_WORKSPACE/script/config.sh CONFIG_KSU=y
+          patch -p1 < $GITHUB_WORKSPACE/patch/seccomp.h.patch
 
           if [ "${{ env.KSU_PATCH }}" == "true" ]; then
             grep -qs "may_mandlock(void)" fs/namespace.c || sed -i '110s|}}||' "$GITHUB_WORKSPACE/patch/ksu_patch.sh"; bash "$GITHUB_WORKSPACE/patch/ksu_patch.sh"
